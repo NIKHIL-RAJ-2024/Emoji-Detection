@@ -3,10 +3,28 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import altair as alt
+from pathlib import Path
 
 import joblib
 
-pipe_lr = joblib.load(open("model/text_emotion.pkl", "rb"))
+BASE_DIR = Path(__file__).resolve().parent
+
+
+def load_model():
+    model_candidates = [
+        BASE_DIR / "model" / "text_emotion.pkl",
+        BASE_DIR / "text_emotion.pkl",
+    ]
+
+    for model_path in model_candidates:
+        if model_path.exists():
+            return joblib.load(model_path)
+
+    tried = ", ".join(str(path) for path in model_candidates)
+    raise FileNotFoundError(f"Model file not found. Tried: {tried}")
+
+
+pipe_lr = load_model()
 
 emotions_emoji_dict = {"anger": "😠", "disgust": "🤮", "fear": "😨😱", "happy": "🤗", "joy": "😂", "neutral": "😐", "sad": "😔",
                        "sadness": "😔", "shame": "😳", "surprise": "😮"}
